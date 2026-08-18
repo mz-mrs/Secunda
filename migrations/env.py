@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from secundatest.core.config import settings
 from secundatest.db.base import Base
+from secundatest.models import Outbox, Payment
 
 
 config = context.config
