@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     postgres_user: str
     postgres_password: str
     postgres_port: int = 5432
+    postgres_host: str = "localhost"
 
     model_config = SettingsConfigDict(
         env_file=".env",
