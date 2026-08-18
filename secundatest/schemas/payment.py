@@ -7,7 +7,6 @@ from secundatest.enums import Currency, PaymentStatus
 
 
 class PaymentCreate(BaseModel):
-    idempotency_key: str = Field(min_length=1, max_length=255)
     amount: Decimal = Field(gt=0)
     currency: Currency
     description: str = Field(min_length=1, max_length=1000)
