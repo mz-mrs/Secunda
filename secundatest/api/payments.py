@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, HTTPException, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from secundatest.api.dependencies import get_session
+from secundatest.api.dependencies import get_session, verify_api_key
 from secundatest.schemas.payment import PaymentCreate, PaymentResponse
 from secundatest.services.payment_service import PaymentService
 
@@ -12,6 +12,7 @@ from secundatest.services.payment_service import PaymentService
 router = APIRouter(
     prefix="/api/v1/payments",
     tags=["payments"],
+    dependencies=[Depends(verify_api_key)],
 )
 
 
