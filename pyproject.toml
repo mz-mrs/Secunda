@@ -5,7 +5,7 @@ description = "Processing service"
 authors = [
     {name = "Marina.Zakharina",email = "machm@mail.ru"}
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "fastapi (>=0.141.1,<0.142.0)",
     "uvicorn (>=0.52.3,<0.53.0)",
@@ -13,8 +13,9 @@ dependencies = [
     "asyncpg (>=0.31.0,<0.32.0)",
     "alembic (>=1.19.1,<2.0.0)",
     "pydantic-settings (>=2.15.0,<3.0.0)",
-    "faststream (>=0.7.4,<0.8.0)",
-    "httpx (>=0.28.1,<0.29.0)"
+    "faststream[cli,rabbit] (>=0.7.4,<0.8.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "pika (>=1.4.4,<2.0.0)"
 ]
 
 

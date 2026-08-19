@@ -59,6 +59,7 @@ class PaymentService:
                 payload={
                     "payment_id": str(payment.id),
                     "idempotency_key": payment.idempotency_key,
+                    "webhook_url": str(payment.webhook_url),
                 },
             )
 
