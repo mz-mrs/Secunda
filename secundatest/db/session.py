@@ -6,7 +6,7 @@ from secundatest.core.config import settings
 DATABASE_URL = (
     f"postgresql+asyncpg://"
     f"{settings.postgres_user}:{settings.postgres_password}"
-    f"@localhost:{settings.postgres_port}/"
+    f"@{settings.postgres_host}:{settings.postgres_port}/"
     f"{settings.postgres_db}"
 )
 
