@@ -15,7 +15,7 @@ logger = logging.getLogger("secundatest.broker.publisher")
 PUBLISH_INTERVAL = 1
 MAX_ATTEMPTS = 3
 
-async def publish_outbox() -> None:
+async def publish_from_outbox() -> None:
     while True:
         try:
             async with async_session_factory() as session:

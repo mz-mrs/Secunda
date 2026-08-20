@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 from faststream.rabbit import RabbitRouter
 from sqlalchemy import select
 
-from secundatest.broker.broker import broker
-from secundatest.broker.publisher import publish_outbox
+from secundatest.broker.broker import broker, payments_dlq, payments_retry_queue, payments_dlx
+from secundatest.broker.publisher import publish_from_outbox
 from secundatest.core.logger import setup_logging
 from secundatest.db.session import async_session_factory
 from secundatest.enums import PaymentStatus
@@ -30,8 +30,10 @@ MAX_ATTEMPTS = 3
 @router.subscriber("payments.new")
 async def payment_processing(message: dict) -> None:
     payment_id = message["payment_id"]
+    attempt = message.get("attempt", 1)
 
-    logger.info(f"Получена операция из очереди payments.new {payment_id=}")
+    logger.info(f"Получена операция из очереди payments.new "
+                f"{payment_id=} {attempt=}")
 
     async with async_session_factory() as session:
         payment = await session.scalar(
@@ -51,17 +53,65 @@ async def payment_processing(message: dict) -> None:
         await asyncio.sleep(random.uniform(2, 5)) # имитация
 
         success = random.random() < 0.9
+        # success = False  # проверка 3 неудачных попыток для DLQ
 
-        if success:
-            payment.status = PaymentStatus.SUCCEEDED
-        else:
-            payment.status = PaymentStatus.FAILED
+        if not success:
+            logger.error(
+                f"Ошибка обработки платежа "
+                f"{payment_id=}, попытка={attempt}/{MAX_ATTEMPTS}"
+            )
 
+            if attempt >= MAX_ATTEMPTS:
+                payment.status = PaymentStatus.FAILED
+                payment.processed_at = datetime.now(timezone.utc)
+
+                await session.commit()
+
+                logger.error(
+                    f"Исчерпаны попытки обработки "
+                    f"{payment_id=}. Отправка сообщения в DLQ"
+                )
+
+                dlq_message = {
+                    **message,
+                    "attempt": attempt,
+                    "error": "payment processing failed",
+                }
+
+                await broker.publish(
+                    dlq_message,
+                    queue=payments_dlq,
+                    persist=True,
+                )
+
+                return
+
+            retry_message = {
+                **message,
+                "attempt": attempt + 1,
+            }
+
+            await broker.publish(
+                retry_message,
+                queue=payments_retry_queue,
+                persist=True,
+            )
+
+            logger.warning(
+                f"Платеж {payment_id=} отправлен на повторную обработку. "
+                f"Следующая попытка={attempt + 1}"
+            )
+
+            return
+
+
+        payment.status = PaymentStatus.SUCCEEDED
         payment.processed_at = datetime.now(timezone.utc)
 
         await session.commit()
 
-        logger.info(f"Обработка платежа {payment_id=} завершена status={payment.status.value}")
+        logger.info(f"Обработка платежа {payment_id=} завершена. "
+                    f"Статус {payment.status.value}")
 
         if payment.webhook_url:
             payload = {
@@ -90,8 +140,12 @@ async def main() -> None:
 
     await broker.start()
 
+    await broker.declare_exchange(payments_dlx)
+    await broker.declare_queue(payments_retry_queue)
+    await broker.declare_queue(payments_dlq)
+
     publisher_task = asyncio.create_task(
-        publish_outbox()
+        publish_from_outbox()
     )
 
     try:
