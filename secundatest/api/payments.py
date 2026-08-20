@@ -1,5 +1,6 @@
 from uuid import UUID
 from typing import Annotated
+import logging
 
 from fastapi import APIRouter, Depends, status, HTTPException, Header
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from secundatest.api.dependencies import get_session, verify_api_key
 from secundatest.schemas.payment import PaymentCreate, PaymentResponse
 from secundatest.services.payment_service import PaymentService
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(

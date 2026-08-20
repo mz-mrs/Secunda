@@ -31,15 +31,15 @@ class WebhookService:
 
             except (httpx.HTTPError, httpx.TimeoutException) as exc:
                 logger.warning(
-                    f"Вебхук не отправлен: {webhook_url=} "
+                    f"Не удалось отправить вебхук: {webhook_url=} "
                     f"{attempt}/{self.MAX_RETRIES} попыток "
                     f"error={exc}"
                 )
 
                 if attempt == self.MAX_RETRIES:
                     logger.error(
-                        f"Отправка вебхука {webhook_url=} "
-                        f"провалена после {self.MAX_RETRIES} попыток"
+                        f"Отправка вебхука окончательно не удалась {webhook_url=} "
+                        f"после {self.MAX_RETRIES} попыток"
                     )
 
                     return False

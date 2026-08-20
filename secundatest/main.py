@@ -3,6 +3,9 @@ from sqlalchemy import text
 
 from secundatest.db.session import async_session_factory
 from secundatest.api.payments import router as payments_router
+from secundatest.core.logger import setup_logging
+
+setup_logging()
 
 app = FastAPI(title="Payment Processing Service for Secunda (TestTask)")
 

@@ -1,13 +1,16 @@
+import logging
+
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.dialects.postgresql import insert
 
 from secundatest.models.outbox import Outbox
 from secundatest.models.payment import Payment
 from secundatest.schemas.payment import PaymentCreate
+
+logger = logging.getLogger(__name__)
 
 
 class PaymentService:
@@ -52,6 +55,8 @@ class PaymentService:
                     )
 
                 return payment
+
+            logger.info(f"Платеж {payment.id=} создан сумма {payment.amount}{payment.currency}")
 
             outbox = Outbox(
                 payment_id=payment.id,
