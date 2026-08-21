@@ -81,7 +81,7 @@ Consumer
 Для Linux/macOS:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.docker
 ```
 
 Для Windows PowerShell:
