@@ -75,8 +75,8 @@ Consumer
 
 ### Настройка окружения
 
-В репозитории находится .env.example с тестовыми значениями конфигурации, необходимыми для локального запуска.
-Создайте .env на его основе.
+В репозитории находится .env.example с тестовой конфигурацией для локального запуска, включая статический API-ключ X-API-Key.
+Создайте .env.docker на его основе.
 
 Для Linux/macOS:
 
@@ -87,7 +87,7 @@ cp .env.example .env
 Для Windows PowerShell:
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item .env.example .env.docker
 ```
 
 Файл .env не хранится в репозитории и добавлен в .gitignore.
