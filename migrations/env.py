@@ -9,7 +9,6 @@ from secundatest.core.config import settings
 from secundatest.db.base import Base
 from secundatest.models import Outbox, Payment
 
-
 config = context.config
 
 if config.config_file_name is not None:

@@ -2,10 +2,8 @@ services:
   postgres:
     image: postgres:17
     container_name: secunda_postgres
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env.docker
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
@@ -19,15 +17,55 @@ services:
   rabbitmq:
     image: rabbitmq:4-management
     container_name: secunda_rabbitmq
+    env_file:
+      - .env.docker
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build: .
+    container_name: secunda_migrate
+    env_file:
+      - .env.docker
+    command: alembic upgrade head
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: .
+    container_name: secunda_api
+    env_file:
+      - .env.docker
+    ports:
+      - "8000:8000"
+    command: uvicorn secundatest.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+
+  consumer:
+    build: .
+    container_name: secunda_consumer
+    env_file:
+      - .env.docker
+    command: python -m secundatest.broker.consumer
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   postgres_data:
-  rabbitmq_data:
