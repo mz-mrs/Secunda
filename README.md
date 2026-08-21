@@ -73,6 +73,16 @@ Consumer
 * Docker
 * Docker Compose
 
+
+### Запуск
+
+Клонировать репозиторий:
+
+```bash
+git clone https://github.com/mz-mrs/Secunda
+cd Secunda
+```
+
 ### Настройка окружения
 
 В репозитории находится .env.example с тестовой конфигурацией для локального запуска, включая статический API-ключ X-API-Key.
@@ -92,16 +102,7 @@ Copy-Item .env.example .env.docker
 
 Файл .env не хранится в репозитории и добавлен в .gitignore.
 
-### Запуск
-
-Клонировать репозиторий:
-
-```bash
-git clone https://github.com/mz-mrs/Secunda
-cd Secunda
-```
-
-Запустить все сервисы:
+### Запустить все сервисы:
 
 ```bash
 docker compose up --build
