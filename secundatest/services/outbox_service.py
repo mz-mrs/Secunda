@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from secundatest.enums.outbox_status import OutboxStatus
 from secundatest.models.outbox import Outbox
 
-
 BASE_RETRY_DELAY = 5
 MAX_ATTEMPTS = 3
 
@@ -22,10 +21,7 @@ class OutboxService:
             select(Outbox)
             .where(
                 Outbox.status == OutboxStatus.PENDING,
-                (
-                    Outbox.next_attempt_at.is_(None)
-                    | (Outbox.next_attempt_at <= now)
-                ),
+                (Outbox.next_attempt_at.is_(None) | (Outbox.next_attempt_at <= now)),
             )
             .order_by(Outbox.created_at)
             .with_for_update(skip_locked=True)
@@ -35,17 +31,14 @@ class OutboxService:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-
     async def mark_outbox_event_processing(self, outbox: Outbox) -> None:
         outbox.status = OutboxStatus.PROCESSING
         await self.session.flush()
-
 
     async def mark_outbox_event_published(self, outbox: Outbox) -> None:
         outbox.status = OutboxStatus.PUBLISHED
         outbox.published_at = datetime.now(timezone.utc)
         await self.session.flush()
-
 
     async def mark_outbox_event_failed(self, outbox: Outbox) -> None:
         outbox.attempts += 1
@@ -55,11 +48,8 @@ class OutboxService:
             return
 
         outbox.status = OutboxStatus.PENDING
-        outbox.next_attempt_at = (
-            datetime.now(timezone.utc)
-            + timedelta(
-                seconds=BASE_RETRY_DELAY * 2 ** (outbox.attempts - 1)
-            )
+        outbox.next_attempt_at = datetime.now(timezone.utc) + timedelta(
+            seconds=BASE_RETRY_DELAY * 2 ** (outbox.attempts - 1)
         )
 
         await self.session.flush()

@@ -18,9 +18,9 @@ class PaymentService:
         self.session = session
 
     async def create_payment(
-            self,
-            data: PaymentCreate,
-            idempotency_key: str,
+        self,
+        data: PaymentCreate,
+        idempotency_key: str,
     ) -> Payment:
         async with self.session.begin():
             stmt = (
@@ -33,9 +33,7 @@ class PaymentService:
                     payment_metadata=data.metadata,
                     webhook_url=str(data.webhook_url),
                 )
-                .on_conflict_do_nothing(
-                    index_elements=[Payment.idempotency_key]
-                )
+                .on_conflict_do_nothing(index_elements=[Payment.idempotency_key])
                 .returning(Payment)
             )
 
@@ -44,19 +42,17 @@ class PaymentService:
 
             if payment is None:
                 payment = await self.session.scalar(
-                    select(Payment).where(
-                        Payment.idempotency_key == idempotency_key
-                    )
+                    select(Payment).where(Payment.idempotency_key == idempotency_key)
                 )
 
                 if payment is None:
-                    raise RuntimeError(
-                        "Платеж не может быть создан"
-                    )
+                    raise RuntimeError("Платеж не может быть создан")
 
                 return payment
 
-            logger.info(f"Платеж {payment.id=} создан сумма {payment.amount}{payment.currency}")
+            logger.info(
+                f"Платеж {payment.id=} создан сумма {payment.amount}{payment.currency}"
+            )
 
             outbox = Outbox(
                 payment_id=payment.id,
@@ -71,7 +67,6 @@ class PaymentService:
             self.session.add(outbox)
 
         return payment
-
 
     async def get_payment(self, payment_id: UUID) -> Payment | None:
         result = await self.session.execute(

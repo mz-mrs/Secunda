@@ -1,8 +1,9 @@
-from uuid import UUID
-from typing import Annotated
 import logging
 
-from fastapi import APIRouter, Depends, status, HTTPException, Header
+from typing import Annotated
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from secundatest.api.dependencies import get_session, verify_api_key
@@ -35,12 +36,10 @@ async def create_payment(
 
     service = PaymentService(session)
 
-    payment = await service.create_payment(
-        data=data,
-        idempotency_key=idempotency_key
-    )
+    payment = await service.create_payment(data=data, idempotency_key=idempotency_key)
 
     return PaymentResponse.model_validate(payment)
+
 
 @router.get(
     "/{payment_id}",

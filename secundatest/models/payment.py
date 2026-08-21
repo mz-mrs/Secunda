@@ -10,7 +10,6 @@ from secundatest.db.base import Base
 from secundatest.enums import Currency, PaymentStatus
 
 
-
 class Payment(Base):
     __tablename__ = "payments"
 

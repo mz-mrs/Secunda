@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from secundatest.db.base import Base
 from secundatest.enums import OutboxStatus
 
+
 class Outbox(Base):
     __tablename__ = "outbox"
 
@@ -72,4 +73,3 @@ class Outbox(Base):
         DateTime(timezone=True),
         nullable=True,
     )
-

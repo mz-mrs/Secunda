@@ -3,7 +3,6 @@ from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 
 from secundatest.core.config import settings
 
-
 PAYMENTS_QUEUE = "payments.new"
 
 PAYMENTS_RETRY_QUEUE = "payments.retry"
