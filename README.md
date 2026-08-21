@@ -98,7 +98,7 @@ Copy-Item .env.example .env
 
 ```bash
 git clone https://github.com/mz-mrs/Secunda
-cd secundatest
+cd Secunda
 ```
 
 Запустить все сервисы:
