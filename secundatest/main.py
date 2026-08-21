@@ -9,7 +9,7 @@ setup_logging()
 
 app = FastAPI(title="Payment Processing Service for Secunda (TestTask)")
 
-app.include_router(payments_router, prefix="/api/v1")
+app.include_router(payments_router)
 
 @app.get("/health")
 async def health():
